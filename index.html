@@ -1,91 +1,170 @@
-
 <!DOCTYPE html>
 <html lang="es-CL">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LLECE | UNESCO | Laboratorio Latinoamericano de Evaluación de la Calidad de la Educación</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="https://lleceunesco.org/wp-content/themes/llece-november/style.css?ver=1651020002" />
-</head>
-<body>
-<div class="container">
-	<div class="row">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>LLECE | UNESCO | Laboratorio Latinoamericano de Evaluación de la Calidad de la Educación</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" />
+        <link rel="stylesheet" href="https://lleceunesco.org/wp-content/themes/llece-november/style.css?ver=1651020002" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="row py-5">
+                <div class="col-md-6 text-center text-md-start">
+                    <div class="input-group input-group-sm mb-3">
+                        <label class="input-group-text">ERCE 2019 - Lectura 3º Grado</label>
+                        <select id="mas_datos_contexto" class="form-select">
+                            <option value="1">Concentración del 10%</option>
+                            <option value="2">Gasto público en educación (% del total de gasto)</option>
+                            <option value="3">Gasto en educación primaria (% sobre el total de gasto en educación)</option>
+                            <option value="4">Gasto público en educación primaria (% del PIB per cápita)</option>
+                            <option value="5">Tasa de alfabetización</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center text-sm-end">
+                    <a href="https://github.com/llece/erce-escritura/blob/main/data_2019_3ro_dominio_discursivo.csv" class="btn btn-sm btn-outline-secondary" target="_blank"><i class="bi bi-file-spreadsheet-fill"></i> Descargar datos</a>
+                    <a class="btn btn-sm btn-outline-secondary" onclick="descarga()"><i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar imagen</a>
+                </div>
 
-     <div class="col-sm-6">
-        <p>
-            Resultados prueba de escritura<br />
-            Dominio discursivo - 3er grado
-        </p>
-    </div>
- <div class="col-md-6 text-center text-sm-end">
-        <a href="https://github.com/llece/erce-escritura/blob/main/data_2019_3ro_dominio_discursivo.csv" class="btn btn-sm btn-outline-secondary" target="_blank"><i class="bi bi-file-spreadsheet-fill"></i> Descargar datos</a>
-        <a class="btn btn-sm btn-outline-secondary" onclick="descarga()"><i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar imagen</a>
-    </div>
+                <div class="col-12 py-5">
+                    <canvas id="myChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
 
-		<div class="col-12 p-5">
-			<canvas id="myChart" height="120"></canvas>
-		</div>
-	</div>
-</div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA==" crossorigin="anonymous"></script>
 
-<script>
-const ar = new Image(20,20);
-const br = new Image(20,20);
-const cl = new Image(20,20);
-ar.src = 'img/chile.png';
-br.src = 'img/chile.png';
-cl.src = 'img/chile.png';
+        <script>
+            Papa.parse("https://raw.githubusercontent.com/llece/contextos/main/erce-porcentajes.csv", {
+                download: true,
+                header: true,
+                dynamicTyping: true,
+                complete: function (respuesta) {
+                    var datos = respuesta.data;
 
-const pointStyles = [ar, br, cl, 'circle'];
+                    var concentracion = [];
+                    var gasto_total = [];
+                    var gasto_primaria = [];
+                    var gasto_primaria_pib = [];
+                    var tasa_alfabetizacion = [];
 
-new Chart(document.getElementById('myChart'), {
-  type: 'scatter',
-  plugins: {
-    afterUpdate: chart => {
-      chart.getDatasetMeta(0).data.forEach((d, i) => d._model.pointStyle = pointStyles[i]);
-    }
-  },
-  data: {
-    datasets: [{
-      data: [
-        {x: 12, y: 20},
-        {x: 2.365398, y: -1.062847}, 
-        {x: -2.507778, y: 0.389309},
-        {x: -0.432636, y: 0.124841}
-      ],
-      backgroundColor: 'silver',
-      pointRadius: 10
-    }]
-  },
-  options: {
-    legend: {
-      display: false
-    },
-    layout: {
-            padding: 20
-        }
-  }
-});
-
-function descarga(){
-	const imageLink = document.createElement('a');
-	const canvas = document.getElementById('myChart');
-	imageLink.download = 'grafico.png';
-	imageLink.href= canvas.toDataURL('image/png', 1);
-	imageLink.click();
-}
-
-</script>
+                    datos.forEach((d) => {
+                        var dupla1 = { x: d.lectura_3, y: d.concentracion_10*100 };
+                        concentracion.push(dupla1);
+                        var dupla2 = { x: d.lectura_3, y: d.gasto_educacion_total*100 };
+                        gasto_total.push(dupla2);
+                        var dupla3 = { x: d.lectura_3, y: d.gasto_primaria_total*100 };
+                        gasto_primaria.push(dupla3);
+                        var dupla4 = { x: d.lectura_3, y: d.gasto_primaria_PIB *100};
+                        gasto_primaria_pib.push(dupla4);
+                        var dupla5 = { x: d.lectura_3, y: d.tasa_alfabetizacion*100 };
+                        tasa_alfabetizacion.push(dupla5);                        
+                    });
 
 
 
-</body>
+                    console.log(concentracion);
+                    const ar = new Image(20, 20);
+                    const bo = new Image(20, 20);
+                    const br = new Image(20, 20);
+                    const cl = new Image(20, 20);
+                    const cr = new Image(20, 20);
+                    const cu = new Image(20, 20);
+                    const ec = new Image(20, 20);
+                    const sv = new Image(20, 20);
+                    const gt = new Image(20, 20);
+                    const hn = new Image(20, 20);
+                    const mx = new Image(20, 20);
+                    const ni = new Image(20, 20);
+                    const pa = new Image(20, 20);
+                    const pe = new Image(20, 20);
+                    const py = new Image(20, 20);
+                    const rdo = new Image(20, 20);
+                    const uy = new Image(20, 20);
+
+                    ar.src = "img/argentina.png";
+                    bo.src = "img/bolivia.png";
+                    br.src = "img/brasil.png";
+                    cl.src = "img/chile.png";
+                    cr.src = "img/costa-rica.png";
+                    cu.src = "img/cuba.png";
+                    ec.src = "img/ecuador.png";
+                    sv.src = "img/el-salvador.png";
+                    gt.src = "img/guatemala.png";
+                    hn.src = "img/honduras.png";
+                    mx.src = "img/mexico.png";
+                    ni.src = "img/nicaragua.png";
+                    pa.src = "img/panama.png";
+                    py.src = "img/paraguay.png";
+                    pe.src = "img/peru.png";
+                    rdo.src = "img/republica-dominicana.png";
+                    uy.src = "img/uruguay.png";
+
+                    const pointStyles = [ar, bo, br, cl, cr, cu, ec, sv, gt, hn, mx, ni, pa, py, pe, rdo, uy];
+
+                    const myChart = new Chart(document.getElementById("myChart"), {
+                        type: "scatter",
+                        plugins: {
+                            afterUpdate: (chart) => {
+                                chart.getDatasetMeta(0).data.forEach((d, i) => (d._model.pointStyle = pointStyles[i]));
+                            },
+                        },
+                        data: {
+                            datasets: [
+                                {
+                                    data: concentracion,
+                                    backgroundColor: "silver",
+                                    pointRadius: 10,
+                                },
+                            ],
+                        },
+                        options: {
+                            legend: {
+                                display: false,
+                            },
+                            layout: {
+                                padding: 10,
+                            },
+                        },
+                    });
+
+                    document.querySelector("#mas_datos_contexto").addEventListener("change", function () {
+                        var x = this.value;
+                        if (x == 1) {
+                            myChart.data.datasets[0].data = concentracion;
+                            console.log("Concentración del 10%");
+                        } else if (x == 2){
+                            myChart.data.datasets[0].data = gasto_total;
+                            console.log("Gasto total");
+                        } else if (x == 3){
+                            myChart.data.datasets[0].data = gasto_primaria;
+                            console.log("Gasto primeria");
+                        } else if (x == 4){
+                            myChart.data.datasets[0].data = gasto_primaria_pib;
+                            console.log("Gasto primeria PIB");
+                        } else {
+                            myChart.data.datasets[0].data = tasa_alfabetizacion;
+                            console.log("Tasa Alfabetización");
+                        }
+                        myChart.update();
+                    });
+
+                    function descarga() {
+                        const imageLink = document.createElement("a");
+                        const canvas = document.getElementById("myChart");
+                        imageLink.download = "grafico.png";
+                        imageLink.href = canvas.toDataURL("image/png", 1);
+                        imageLink.click();
+                    }
+                },
+            });
+        </script>
+    </body>
 </html>
-
