@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-center text-sm-end">
-                    <a href="https://github.com/llece/erce-escritura/blob/main/data_2019_3ro_dominio_discursivo.csv" class="btn btn-sm btn-outline-secondary" target="_blank"><i class="bi bi-file-spreadsheet-fill"></i> Descargar datos</a>
+                    <a href="https://github.com/llece/contextos/blob/main/erce-porcentajes.csv" class="btn btn-sm btn-outline-secondary" target="_blank"><i class="bi bi-file-spreadsheet-fill"></i> Descargar datos</a>
                     <a class="btn btn-sm btn-outline-secondary" onclick="descarga()"><i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar imagen</a>
                 </div>
 
@@ -49,6 +49,8 @@
                 complete: function (respuesta) {
                     var datos = respuesta.data;
 
+                    console.log(datos);
+
                     var concentracion = [];
                     var gasto_total = [];
                     var gasto_primaria = [];
@@ -56,25 +58,36 @@
                     var tasa_alfabetizacion = [];
 
                     datos.forEach((d) => {
-                        var dupla1 = { x: d.lectura_3, y: d.concentracion_10*100 };
-                        concentracion.push(dupla1);
-                        var dupla2 = { x: d.lectura_3, y: d.gasto_educacion_total*100 };
-                        gasto_total.push(dupla2);
-                        var dupla3 = { x: d.lectura_3, y: d.gasto_primaria_total*100 };
-                        gasto_primaria.push(dupla3);
-                        var dupla4 = { x: d.lectura_3, y: d.gasto_primaria_PIB *100};
-                        gasto_primaria_pib.push(dupla4);
-                        var dupla5 = { x: d.lectura_3, y: d.tasa_alfabetizacion*100 };
-                        tasa_alfabetizacion.push(dupla5);                        
+                        if (d.lectura_3 !== null) {
+                            if (d.concentracion_10 !== null) {
+                                var dupla1 = { x: d.lectura_3, y: d.concentracion_10 * 100 };
+                                concentracion.push(dupla1);
+                            }
+                            if (d.gasto_educacion_total !== null) {
+                                var dupla2 = { x: d.lectura_3, y: d.gasto_educacion_total * 100 };
+                                gasto_total.push(dupla2);
+                            }
+                            if (d.gasto_primaria_total !== null) {
+                                var dupla3 = { x: d.lectura_3, y: d.gasto_primaria_total * 100 };
+                                gasto_primaria.push(dupla3);
+                            }
+                            if (d.gasto_primaria_PIB !== null) {
+                                var dupla4 = { x: d.lectura_3, y: d.gasto_primaria_PIB * 100 };
+                                gasto_primaria_pib.push(dupla4);
+                            }
+                            if (d.tasa_alfabetizacion !== null) {
+                                var dupla5 = { x: d.lectura_3, y: d.tasa_alfabetizacion * 100 };
+                                tasa_alfabetizacion.push(dupla5);
+                            }
+                        }
                     });
 
-
-
-                    console.log(concentracion);
+                    console.log(gasto_primaria_pib);
                     const ar = new Image(20, 20);
                     const bo = new Image(20, 20);
                     const br = new Image(20, 20);
                     const cl = new Image(20, 20);
+                    const co = new Image(20, 20);
                     const cr = new Image(20, 20);
                     const cu = new Image(20, 20);
                     const ec = new Image(20, 20);
@@ -93,6 +106,7 @@
                     bo.src = "img/bolivia.png";
                     br.src = "img/brasil.png";
                     cl.src = "img/chile.png";
+                    cr.src = "img/colombia.png";
                     cr.src = "img/costa-rica.png";
                     cu.src = "img/cuba.png";
                     ec.src = "img/ecuador.png";
@@ -107,7 +121,7 @@
                     rdo.src = "img/republica-dominicana.png";
                     uy.src = "img/uruguay.png";
 
-                    const pointStyles = [ar, bo, br, cl, cr, cu, ec, sv, gt, hn, mx, ni, pa, py, pe, rdo, uy];
+                    var pointStyles = [ar, br, co, cr, ec, sv, hn, pa, py, pe, rdo, uy];
 
                     const myChart = new Chart(document.getElementById("myChart"), {
                         type: "scatter",
@@ -132,39 +146,54 @@
                             layout: {
                                 padding: 10,
                             },
+                            scales: {
+                                yAxes: [
+                                    {
+                                        ticks: {
+                                            beginAtZero: true,
+                                        },
+                                    },
+                                ],
+                            },
                         },
                     });
 
+                    //actualizar el coso
                     document.querySelector("#mas_datos_contexto").addEventListener("change", function () {
                         var x = this.value;
                         if (x == 1) {
                             myChart.data.datasets[0].data = concentracion;
+                            pointStyles = [ar, br, co, cr, ec, sv, hn, pa, py, pe, rdo, uy];
                             console.log("Concentración del 10%");
-                        } else if (x == 2){
+                        } else if (x == 2) {
                             myChart.data.datasets[0].data = gasto_total;
+                            pointStyles = [ar, br, co, cr, ec, sv, gt, hn, mx, ni, pa, py, pe, rdo, uy];
                             console.log("Gasto total");
-                        } else if (x == 3){
+                        } else if (x == 3) {
                             myChart.data.datasets[0].data = gasto_primaria;
-                            console.log("Gasto primeria");
-                        } else if (x == 4){
+                            pointStyles = [ar, br, co, cr, cu, ec, sv, gt, hn, mx, ni, pa, py, pe, rdo, uy];
+                            console.log("Gasto primaria");
+                        } else if (x == 4) {
                             myChart.data.datasets[0].data = gasto_primaria_pib;
+                            pointStyles = [ar, br, co, cr, cu, ec, sv, gt, hn, mx, ni, pa, py, pe, rdo, uy];
                             console.log("Gasto primeria PIB");
                         } else {
                             myChart.data.datasets[0].data = tasa_alfabetizacion;
+                            pointStyles = [ar, br, co, cr, ec, sv, hn, mx, pa, py, pe, uy];
                             console.log("Tasa Alfabetización");
                         }
                         myChart.update();
                     });
-
-                    function descarga() {
-                        const imageLink = document.createElement("a");
-                        const canvas = document.getElementById("myChart");
-                        imageLink.download = "grafico.png";
-                        imageLink.href = canvas.toDataURL("image/png", 1);
-                        imageLink.click();
-                    }
                 },
             });
+
+            function descarga() {
+                const imageLink = document.createElement("a");
+                const canvas = document.getElementById("myChart");
+                imageLink.download = "grafico.png";
+                imageLink.href = canvas.toDataURL("image/png", 1);
+                imageLink.click();
+            }
         </script>
     </body>
 </html>
