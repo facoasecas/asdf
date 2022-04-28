@@ -16,13 +16,13 @@
             <div class="row py-5">
                 <div class="col-md-6 text-center text-md-start">
                     <div class="input-group input-group-sm mb-3">
-                        <label class="input-group-text">ERCE 2019 - Lectura 3º Grado</label>
+                        <label class="input-group-text">ERCE 2019</label>
                         <select id="mas_datos_contexto" class="form-select">
-                            <option value="1">Concentración del 10%</option>
-                            <option value="2">Gasto público en educación (% del total de gasto)</option>
-                            <option value="3">Gasto en educación primaria (% sobre el total de gasto en educación)</option>
-                            <option value="4">Gasto público en educación primaria (% del PIB per cápita)</option>
-                            <option value="5">Tasa de alfabetización</option>
+                            <option value="1">Lectura 3º Grado - Concentración del 10%</option>
+                            <option value="2">Lectura 3º Grado - Gasto público en educación (% del total de gasto)</option>
+                            <option value="3">Lectura 3º Grado - Gasto en educación primaria (% sobre el total de gasto en educación)</option>
+                            <option value="4">Lectura 3º Grado - Gasto público en educación primaria (% del PIB per cápita)</option>
+                            <option value="5">Lectura 3º Grado - Tasa de alfabetización</option>
                         </select>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="col-12 py-5">
-                    <canvas id="myChart" height="120"></canvas>
+                    <canvas id="myChart" height="120" class="bg-light"></canvas>
                 </div>
             </div>
         </div>
@@ -144,7 +144,7 @@
                                 display: false,
                             },
                             layout: {
-                                padding: 10,
+                                padding: 20,
                             },
                             scales: {
                                 yAxes: [
